@@ -1,0 +1,8 @@
+env
+test.js
+test.py
+epg.db
+epgToday.json
+storeEpg.py
+cache_dir/
+**/__pycache__/
