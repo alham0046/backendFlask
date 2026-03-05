@@ -320,7 +320,7 @@ def _token(ua, acc):
     return sha256(raw.encode()).hexdigest()
 
 
-def get_gofile_stream(content_id, password=None):
+def gofileResolver(content_id, password=None):
     ua = "Mozilla/5.0"
 
     base_headers = {
