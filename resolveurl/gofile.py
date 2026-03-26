@@ -650,32 +650,20 @@ def gofileResolver(url, password=None):
     data = response["data"]
     results = []
 
-    # print("data is", data)
+    print("data is", data)
 
     # Function to extract from file objects
     def extract_file(item):
         if item.get("name", "").lower().endswith(".mp4"):
             results.append(item["link"])
-            # return {
-            #     "playlink": item["link"],
-            #     "headers": {
-            #         "origin": "https://gofile.io",
-            #         "User-Agent": headers["User-Agent"],
-            #         "Cookie": headers["Cookie"],
-            #         "authorization": headers["Authorization"],
-            #         "X-Website-Token": headers["X-Website-Token"],
-            #         "X-BL": headers["X-BL"],
-            #         "Referer": "https://gofile.io/"
-            #     }
-            # }
 
     # Handle Folders vs Single Files
     if data.get("type") == "folder":
         # print("its a folder")
         for child in data.get("children", {}).values():
-            return extract_file(child)
+            extract_file(child)
     else:
-        return extract_file(data)
+        extract_file(data)
 
     # return results
 
@@ -693,4 +681,5 @@ def gofileResolver(url, password=None):
     }
 
 
-# gofileResolver("2CB9Lg")
+# retres = gofileResolver("2CB9Lg")
+# print("the retres is", retres)
