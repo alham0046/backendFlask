@@ -49,9 +49,9 @@
 #     acc = account_response.json()
 #     # print(acc)
 #     token = acc["data"]["token"]
-    
+
 #     print("the token is", token)
-    
+
 #     webToken = generate_website_token(token)
 
 #     # Fetch the content using the token
@@ -237,10 +237,6 @@
 #         return None
 
 
-
-
-
-
 # import requests
 # from hashlib import sha256
 # from time import time
@@ -306,81 +302,81 @@
 #     }
 
 
+# import requests
+# from hashlib import sha256
+# from time import time
 
 
-
-import requests
-from hashlib import sha256
-from time import time
-
-
-def _token(ua, acc):
-    slot = int(time()) // 14400
-    raw = f"{ua}::en-US::{acc}::{slot}::gf2026x"
-    return sha256(raw.encode()).hexdigest()
+# def _token(ua, acc):
+#     slot = int(time()) // 14400
+#     raw = f"{ua}::en-US::{acc}::{slot}::gf2026x"
+#     return sha256(raw.encode()).hexdigest()
 
 
-def gofileResolver(content_id, password=None):
-    ua = "Mozilla/5.0"
+# def gofileResolver(content_id, password=None):
+#     ua = "Mozilla/5.0"
 
-    base_headers = {
-        "User-Agent": ua,
-        "Accept": "*/*",
-        "Origin": "https://gofile.io",
-        "Referer": "https://gofile.io/",
-        "Connection": "keep-alive"
-    }
+#     base_headers = {
+#         "User-Agent": ua,
+#         "Accept": "*/*",
+#         "Origin": "https://gofile.io",
+#         "Referer": "https://gofile.io/",
+#         "Connection": "keep-alive"
+#     }
 
-    s = requests.Session()
-    s.headers.update(base_headers)
+#     s = requests.Session()
+#     s.headers.update(base_headers)
 
-    # create temporary account
-    r = s.post(
-        "https://server3.pd1.workers.dev/accounts",
-        headers={"X-Website-Token": _token(ua, ""), "X-BL": "en-US"},
-        timeout=15
-    ).json()
+#     # create temporary account
+#     r = s.post(
+#         "https://server3.pd1.workers.dev/accounts",
+#         headers={"X-Website-Token": _token(ua, ""), "X-BL": "en-US"},
+#         timeout=15
+#     ).json()
 
-    token = r["data"]["token"]
+#     token = r["data"]["token"]
 
-    s.headers["Authorization"] = f"Bearer {token}"
-    s.cookies.set("accountToken", token)
+#     s.headers["Authorization"] = f"Bearer {token}"
+#     s.cookies.set("accountToken", token)
 
-    # get content
-    url = f"https://server3.pd1.workers.dev/contents/{content_id}?cache=true"
+#     # get content
+#     url = f"https://server3.pd1.workers.dev/contents/{content_id}?cache=true"
 
-    if password:
-        url += f"&password={sha256(password.encode()).hexdigest()}"
+#     if password:
+#         url += f"&password={sha256(password.encode()).hexdigest()}"
 
-    r = s.get(
-        url,
-        headers={"X-Website-Token": _token(ua, token), "X-BL": "en-US"},
-        timeout=15
-    ).json()
+#     r = s.get(
+#         url,
+#         headers={"X-Website-Token": _token(ua, token), "X-BL": "en-US"},
+#         timeout=15
+#     ).json()
 
-    data = r["data"]
+#     data = r["data"]
 
-    if data["type"] == "folder":
-        for child in data["children"].values():
-            if child["type"] != "folder":
-                link = child["link"]
-                break
-    else:
-        link = data["link"]
+#     if data["type"] == "folder":
+#         for child in data["children"].values():
+#             if child["type"] != "folder":
+#                 link = child["link"]
+#                 break
+#     else:
+#         link = data["link"]
 
-    headers = {
-        "User-Agent": ua,
-        "Accept": "*/*",
-        "Origin": "https://gofile.io",
-        "Referer": "https://gofile.io/",
-        "Cookie": f"accountToken={token}"
-    }
+#     headers = {
+#         "User-Agent": ua,
+#         "Accept": "*/*",
+#         "Origin": "https://gofile.io",
+#         "Referer": "https://gofile.io/",
+#         "Cookie": f"accountToken={token}"
+#     }
 
-    return {
-        "playlink": link,
-        "headers": headers
-    }
+#     return {
+#         "playlink": link,
+#         "headers": headers
+#     }
 
+# link = gofileResolver("9QDBnz")
+
+# print(link)
 
 
 # import requests
@@ -501,8 +497,200 @@ def gofileResolver(content_id, password=None):
 #     }
 
 
-
-    
 # link = get_gofile_stream("ARznuN")
 
 # print(link)
+
+
+# import requests
+
+# DEFAULT_TIMEOUT = 15  # 10 seconds
+
+# BASE_API = "https://api.gofile.io"
+# BASE_URL = "https://gofile.io"
+
+# MY_TOKEN = "JFnvFyHRygIvrsUTiPKCis3kbyLCYgst"
+
+# headers = (
+#     {
+#         "origin": BASE_URL,
+#         "referer": f"{BASE_URL}/",
+#         "user-agent": (
+#             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+#             "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+#         ),
+#     },
+# )
+
+
+# def update_token(wt) -> None:
+#     """
+#     Update the access token used for API requests.
+
+#     Makes a request to GoFile's accounts API to get a fresh token.
+#     """
+#     # data = requests.post(
+#     #     "https://api.gofile.io/accounts/website", timeout=DEFAULT_TIMEOUT
+#     # ).json()
+#     data = requests.post(
+#         "https://api.gofile.io/accounts/",
+#         headers={"X-Website-Token": wt, "X-BL": "en-US"},
+#         timeout=DEFAULT_TIMEOUT,
+#     ).json()
+#     # print(data)
+#     if data.get("status") == "ok":
+#         token = data["data"].get("token", "")
+#         return token
+#     else:
+#         return None
+
+#     # https://api.gofile.io/accounts/website
+
+
+# def update_wt() -> None:
+#     """
+#     Update the 'wt' (websiteToken) parameter needed for content requests.
+
+#     Extracts the wt parameter from GoFile's config.js JavaScript file.
+#     """
+#     alljs = requests.get(
+#         "https://gofile.io/dist/js/config.js", timeout=DEFAULT_TIMEOUT
+#     ).text
+#     if 'appdata.wt = "' in alljs:
+#         wt = alljs.split('appdata.wt = "')[1].split('"')[0]
+#         print(wt)
+#         return wt
+#     else:
+#         return None
+
+
+# def gofileResolver(content_id):
+#     wt = update_wt()
+#     token = MY_TOKEN
+#     # token = update_token(wt)
+#     # headers["Cookie"] = f"accountToken={token}"
+#     # print(headers)
+#     if token:
+#         response = requests.get(
+#             f"https://api.gofile.io/contents/{content_id}",
+#             headers={
+#                 # "Authorization": "Bearer " + token,
+#                 # "X-Website-Token": wt,
+#                 "origin": BASE_URL,
+#                 "referer": f"{BASE_URL}/",
+#                 "Cookie": f"accountToken={token}",
+#                 "user-agent": (
+#                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+#                     "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+#                 ),
+#                 "authorization": f"Bearer {token}",
+#                 "X-Website-Token": wt,
+#                 "X-BL": "en-US",
+#             },
+#             timeout=DEFAULT_TIMEOUT,
+#         )
+#         data = response.json()
+#         print("the data is", data)
+#     return None
+
+
+# gofileResolver("ARznuN")
+
+
+import hashlib
+import requests
+from time import time
+
+
+def get_gofile_auth():
+    """Step 1: Get a guest account token and generate the website token."""
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+
+    # Create Guest Account
+    acc_url = "https://api.gofile.io/accounts"
+    # To create an account, we need an initial token based on an empty string
+    time_slot = int(time()) // 14400
+    init_raw = f"{user_agent}::en-US::::{time_slot}::5d4f7g8sd45fsd"
+    init_wt = hashlib.sha256(init_raw.encode()).hexdigest()
+
+    res = requests.post(
+        acc_url, headers={"X-Website-Token": init_wt, "X-BL": "en-US"}
+    ).json()
+    token = res["data"]["token"]
+
+    # Generate the FINAL Website Token using the new account token
+    final_raw = f"{user_agent}::en-US::{token}::{time_slot}::5d4f7g8sd45fsd"
+    final_wt = hashlib.sha256(final_raw.encode()).hexdigest()
+
+    headers = {
+        "User-Agent": user_agent,
+        "Authorization": f"Bearer {token}",
+        "X-Website-Token": final_wt,
+        "X-BL": "en-US",
+        "Cookie": f"accountToken={token}",
+    }
+    return headers
+
+
+def gofileResolver(url, password=None):
+    """Step 2: Get the direct MP4 links and the headers required to play them."""
+    content_id = url.rstrip("/").split("/")[-1]
+    headers = get_gofile_auth()
+
+    api_url = f"https://api.gofile.io/contents/{content_id}?cache=true"
+    if password:
+        hashed_pw = hashlib.sha256(password.encode()).hexdigest()
+        api_url += f"&password={hashed_pw}"
+
+    response = requests.get(api_url, headers=headers).json()
+
+    if response["status"] != "ok":
+        return {"error": response.get("status")}
+
+    data = response["data"]
+    results = []
+
+    # print("data is", data)
+
+    # Function to extract from file objects
+    def extract_file(item):
+        if item.get("name", "").lower().endswith(".mp4"):
+            results.append(item["link"])
+            # return {
+            #     "playlink": item["link"],
+            #     "headers": {
+            #         "origin": "https://gofile.io",
+            #         "User-Agent": headers["User-Agent"],
+            #         "Cookie": headers["Cookie"],
+            #         "authorization": headers["Authorization"],
+            #         "X-Website-Token": headers["X-Website-Token"],
+            #         "X-BL": headers["X-BL"],
+            #         "Referer": "https://gofile.io/"
+            #     }
+            # }
+
+    # Handle Folders vs Single Files
+    if data.get("type") == "folder":
+        # print("its a folder")
+        for child in data.get("children", {}).values():
+            return extract_file(child)
+    else:
+        return extract_file(data)
+
+    # return results
+
+    return {
+        "playlink": results[0],
+        "headers": {
+            "origin": "https://gofile.io",
+            "User-Agent": headers["User-Agent"],
+            "Cookie": headers["Cookie"],
+            "authorization": headers["Authorization"],
+            "X-Website-Token": headers["X-Website-Token"],
+            "X-BL": headers["X-BL"],
+            "Referer": "https://gofile.io/",
+        },
+    }
+
+
+# gofileResolver("2CB9Lg")
