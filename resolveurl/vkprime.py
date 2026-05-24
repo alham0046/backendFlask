@@ -24,8 +24,8 @@ def vkprimeResolve(vkprimeUrl):
     options.add_argument("--no-sandbox")  # Required for some Linux environments
     options.add_argument("--disable-dev-shm-usage")  # Overcomes resource limitations
     options.binary_location = "/opt/render/project/.render/chrome/opt/google/chrome/chrome"
-    service = Service("/opt/render/project/.render/chromedriver/chromedriver")
-    driver = webdriver.Chrome(service=service, options=options)
+    # service = Service("/opt/render/project/.render/chromedriver/chromedriver")
+    driver = webdriver.Chrome(options=options)
     ### Extra ends here
 
     # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
@@ -56,7 +56,7 @@ def vkprimeResolve(vkprimeUrl):
     # print("this is inside vkprime", finalUrl)
     return finalUrl
 
-# url = 'https://vkprime.com/embed-1ovclo1r6vfh.html'
+# url = 'https://vkprime.com/embed-03eedw2ydzdp.html'
 # finalUrl = vkprimeResolve(url)
 # print(finalUrl)
 
