@@ -597,89 +597,234 @@
 # gofileResolver("ARznuN")
 
 
+# import hashlib
+# import requests
+# from time import time
+
+
+# def get_gofile_auth():
+#     """Step 1: Get a guest account token and generate the website token."""
+#     user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+
+#     # Create Guest Account
+#     acc_url = "https://api.gofile.io/accounts"
+#     # To create an account, we need an initial token based on an empty string
+#     time_slot = int(time()) // 14400
+#     init_raw = f"{user_agent}::en-US::::{time_slot}::5d4f7g8sd45fsd"
+#     init_wt = hashlib.sha256(init_raw.encode()).hexdigest()
+
+#     res = requests.post(
+#         acc_url, headers={"X-Website-Token": init_wt, "X-BL": "en-US"}
+#     ).json()
+#     token = res["data"]["token"]
+
+#     # Generate the FINAL Website Token using the new account token
+#     final_raw = f"{user_agent}::en-US::{token}::{time_slot}::5d4f7g8sd45fsd"
+#     final_wt = hashlib.sha256(final_raw.encode()).hexdigest()
+
+#     headers = {
+#         "User-Agent": user_agent,
+#         "Authorization": f"Bearer {token}",
+#         "X-Website-Token": final_wt,
+#         "X-BL": "en-US",
+#         "Cookie": f"accountToken={token}",
+#     }
+#     return headers
+
+
+# def gofileResolver(url, password=None):
+#     """Step 2: Get the direct MP4 links and the headers required to play them."""
+#     content_id = url.rstrip("/").split("/")[-1]
+#     headers = get_gofile_auth()
+
+#     api_url = f"https://api.gofile.io/contents/{content_id}?cache=true"
+#     if password:
+#         hashed_pw = hashlib.sha256(password.encode()).hexdigest()
+#         api_url += f"&password={hashed_pw}"
+
+#     response = requests.get(api_url, headers=headers).json()
+
+#     if response["status"] != "ok":
+#         return {"error": response.get("status")}
+
+#     data = response["data"]
+#     results = []
+
+#     print("data is", data)
+
+#     # Function to extract from file objects
+#     def extract_file(item):
+#         if item.get("name", "").lower().endswith(".mp4"):
+#             results.append(item["link"])
+
+#     # Handle Folders vs Single Files
+#     if data.get("type") == "folder":
+#         # print("its a folder")
+#         for child in data.get("children", {}).values():
+#             extract_file(child)
+#     else:
+#         extract_file(data)
+
+#     # return results
+
+#     return {
+#         "playlink": results[0],
+#         "headers": {
+#             "origin": "https://gofile.io",
+#             "User-Agent": headers["User-Agent"],
+#             "Cookie": headers["Cookie"],
+#             "authorization": headers["Authorization"],
+#             "X-Website-Token": headers["X-Website-Token"],
+#             "X-BL": headers["X-BL"],
+#             "Referer": "https://gofile.io/",
+#         },
+#     }
+
+
 import hashlib
 import requests
 from time import time
+from urllib.parse import urlencode
+
+
+USER_AGENT = "Mozilla/5.0"
+LOCALE = "en-US"
+TOKEN_SECRET = "g4f8fd9f12h14g"
+TOKEN_WINDOW_SEC = 14400
+
+
+def generate_website_token(account_token=""):
+    time_window = str(int(time()) // TOKEN_WINDOW_SEC)
+
+    raw = (
+        f"{USER_AGENT}::{LOCALE}::{account_token}::{time_window}::{TOKEN_SECRET}"
+    )
+
+    return hashlib.sha256(raw.encode()).hexdigest()
 
 
 def get_gofile_auth():
-    """Step 1: Get a guest account token and generate the website token."""
-    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    """
+    Create guest account and generate valid auth headers
+    """
 
-    # Create Guest Account
-    acc_url = "https://api.gofile.io/accounts"
-    # To create an account, we need an initial token based on an empty string
-    time_slot = int(time()) // 14400
-    init_raw = f"{user_agent}::en-US::::{time_slot}::5d4f7g8sd45fsd"
-    init_wt = hashlib.sha256(init_raw.encode()).hexdigest()
-
-    res = requests.post(
-        acc_url, headers={"X-Website-Token": init_wt, "X-BL": "en-US"}
-    ).json()
-    token = res["data"]["token"]
-
-    # Generate the FINAL Website Token using the new account token
-    final_raw = f"{user_agent}::en-US::{token}::{time_slot}::5d4f7g8sd45fsd"
-    final_wt = hashlib.sha256(final_raw.encode()).hexdigest()
+    # Initial token with empty account token
+    init_token = generate_website_token("")
 
     headers = {
-        "User-Agent": user_agent,
-        "Authorization": f"Bearer {token}",
-        "X-Website-Token": final_wt,
-        "X-BL": "en-US",
-        "Cookie": f"accountToken={token}",
+        "User-Agent": USER_AGENT,
+        "X-Website-Token": init_token,
+        "X-BL": LOCALE,
+        "Accept": "application/json",
     }
-    return headers
+
+    # Create guest account
+    response = requests.post(
+        "https://api.gofile.io/accounts",
+        headers=headers,
+        timeout=10,
+    ).json()
+
+    if response["status"] != "ok":
+        raise Exception("Failed to create GoFile guest account")
+
+    account_token = response["data"]["token"]
+
+    # Final website token
+    final_token = generate_website_token(account_token)
+
+    return {
+        "User-Agent": USER_AGENT,
+        "Authorization": f"Bearer {account_token}",
+        "X-Website-Token": final_token,
+        "X-BL": LOCALE,
+        "Cookie": f"accountToken={account_token}",
+        "Accept": "application/json",
+        "Referer": "https://gofile.io/",
+        "Origin": "https://gofile.io",
+    }
 
 
 def gofileResolver(url, password=None):
-    """Step 2: Get the direct MP4 links and the headers required to play them."""
+    """
+    Resolve GoFile URL to direct playable link
+    """
+
     content_id = url.rstrip("/").split("/")[-1]
+
     headers = get_gofile_auth()
 
-    api_url = f"https://api.gofile.io/contents/{content_id}?cache=true"
+    params = {
+        "cache": "true",
+        "sortField": "createTime",
+        "sortDirection": "1",
+    }
+
+    # IMPORTANT:
+    # Send RAW password, NOT sha256
     if password:
-        hashed_pw = hashlib.sha256(password.encode()).hexdigest()
-        api_url += f"&password={hashed_pw}"
+        params["password"] = password
 
-    response = requests.get(api_url, headers=headers).json()
+    api_url = (
+        f"https://api.gofile.io/contents/{content_id}?"
+        + urlencode(params)
+    )
 
-    if response["status"] != "ok":
+    response = requests.get(
+        api_url,
+        headers=headers,
+        timeout=10,
+    ).json()
+
+    # print("response =", response)
+
+    if response.get("status") != "ok":
         return {"error": response.get("status")}
 
     data = response["data"]
+
     results = []
 
-    print("data is", data)
-
-    # Function to extract from file objects
     def extract_file(item):
-        if item.get("name", "").lower().endswith(".mp4"):
+        name = item.get("name", "").lower()
+
+        if name.endswith((".mp4", ".mkv", ".avi", ".mov")):
             results.append(item["link"])
 
-    # Handle Folders vs Single Files
+    # Folder
     if data.get("type") == "folder":
-        # print("its a folder")
         for child in data.get("children", {}).values():
             extract_file(child)
+
+    # Single file
     else:
         extract_file(data)
 
-    # return results
+    if not results:
+        return {"error": "No playable video found"}
 
     return {
         "playlink": results[0],
         "headers": {
-            "origin": "https://gofile.io",
+            "Origin": "https://gofile.io",
+            "Referer": "https://gofile.io/",
             "User-Agent": headers["User-Agent"],
             "Cookie": headers["Cookie"],
-            "authorization": headers["Authorization"],
+            "Authorization": headers["Authorization"],
             "X-Website-Token": headers["X-Website-Token"],
             "X-BL": headers["X-BL"],
-            "Referer": "https://gofile.io/",
         },
     }
 
 
-# retres = gofileResolver("2CB9Lg")
+# Example
+# result = gofileResolver(
+#     "https://gofile.io/d/XXXXXXXX",
+#     password=None,
+# )
+
+# print(result)
+
+
+# retres = gofileResolver("mmNXtP")
 # print("the retres is", retres)
