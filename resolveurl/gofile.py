@@ -819,7 +819,7 @@ def gofileResolver(url, password=None):
 
 # Example
 # result = gofileResolver(
-#     "https://gofile.io/d/XXXXXXXX",
+#     "https://gofile.io/d/FWvNso",
 #     password=None,
 # )
 
