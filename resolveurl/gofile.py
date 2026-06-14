@@ -689,7 +689,7 @@ from urllib.parse import urlencode
 
 USER_AGENT = "Mozilla/5.0"
 LOCALE = "en-US"
-TOKEN_SECRET = "g4f8fd9f12h14g"
+TOKEN_SECRET = "9844d94d963d30"
 TOKEN_WINDOW_SEC = 14400
 
 
