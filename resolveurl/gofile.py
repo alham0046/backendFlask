@@ -689,7 +689,7 @@ from urllib.parse import urlencode
 
 USER_AGENT = "Mozilla/5.0"
 LOCALE = "en-US"
-TOKEN_SECRET = "9844d94d963d30"
+TOKEN_SECRET = "12af056dacea0b"
 TOKEN_WINDOW_SEC = 14400
 
 
@@ -710,6 +710,8 @@ def get_gofile_auth():
 
     # Initial token with empty account token
     init_token = generate_website_token("")
+    
+    # print(init_token)
 
     headers = {
         "User-Agent": USER_AGENT,
@@ -819,12 +821,12 @@ def gofileResolver(url, password=None):
 
 # Example
 # result = gofileResolver(
-#     "https://gofile.io/d/FWvNso",
+#     "https://gofile.io/d/C7VmwrvI",
 #     password=None,
 # )
 
 # print(result)
 
 
-# retres = gofileResolver("mmNXtP")
+# retres = gofileResolver("C7VmwrvI")
 # print("the retres is", retres)
