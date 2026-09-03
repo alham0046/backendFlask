@@ -8,7 +8,12 @@ def getLink(url):
         return findHostandMediaId(url)
 
 def getVideoLink(db, videoUrl, validPlayLink):
-    if isinstance(videoUrl, str) and ('.mp4' in videoUrl or '.mkv' in videoUrl or 'pixeldra' in videoUrl):
+    if isinstance(videoUrl, str) and 'gofile' in videoUrl:
+        playLinkCheck = getLink(videoUrl)
+        if playLinkCheck:
+            validPlayLink.update(playLinkCheck)
+            validPlayLink.update({'status' : True})
+    elif isinstance(videoUrl, str) and ('.mp4' in videoUrl or '.mkv' in videoUrl or 'pixeldra' in videoUrl):
         # videoUrlStatus = validateUrl(videoUrl)
         validPlayLink.update({'playlink':quote(videoUrl, safe=":/?"), 'status' : True})
         print('entering video 1', validPlayLink)
