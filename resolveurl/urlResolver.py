@@ -9,7 +9,7 @@ RESOLVERS = {
     # 'tvlogy': tvlogy  # Assuming tvlogy is callable as is
 }
 
-def resolveUrl(host, mediaId):
+def resolveUrl(host, mediaId, **kwargs):
     if not mediaId:
         return None
     resolver_function = RESOLVERS.get(host)
